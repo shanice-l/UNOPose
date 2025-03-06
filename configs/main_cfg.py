@@ -1,7 +1,7 @@
 import os.path as osp
 
 cur_dir = osp.dirname(osp.abspath(__file__))
-PROJ_ROOT = osp.join(cur_dir, "../../../")
+PROJ_ROOT = osp.join(cur_dir, "../")
 
 from detectron2.config import LazyCall as L
 from detectron2.solver.build import get_default_optimizer_params

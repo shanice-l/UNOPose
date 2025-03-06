@@ -30,7 +30,7 @@ If you find this repo useful in your research, please consider citing:
 ```
 @InProceedings{liu_2025_unopose,
   title     = {{UNOPose}: Unseen Object Pose Estimation with an Unposed RGB-D Reference Image},
-  author    = {Liu, Xingyu and Wang, Gu and Ruida, Zhang and Chenyangguang, Zhang and Ji, Xiangyang},
+  author    = {Liu, Xingyu and Wang, Gu and Zhang, Ruida and Zhang, Chenyangguang and Ji, Xiangyang},
   booktitle = {CVPR},
   month     = {June},
   year      = {2025}
