@@ -297,6 +297,7 @@ class ViTEncoderOneRef(nn.Module):
         tem_feat = torch.cat(tem_feat_list, dim=1)  # (n_obj, n_tem x p, c)
         return sample_pts_feats(tem_pts, tem_feat, npoint)
 
+
 if __name__ == "__main__":
     from pathlib import Path
     from easydict import EasyDict as edict

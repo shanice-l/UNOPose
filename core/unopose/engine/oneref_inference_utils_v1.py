@@ -83,7 +83,7 @@ def inference_and_save_oneref_v1(
                 if "tem1_pose" in data:
                     pose_ref_obj = data["tem1_pose"][0][start_idx:end_idx].contiguous()
                     predpose_tgt_ref = torch.zeros_like(pose_ref_obj)
-                    predpose_tgt_ref[:,3,3] = 1.0
+                    predpose_tgt_ref[:, 3, 3] = 1.0
                     predpose_tgt_ref[:, :3, :3] = end_points["pred_R"]
                     predpose_tgt_ref[:, :3, 3] = end_points["pred_t"]
                     predpose_tgt_obj = predpose_tgt_ref @ pose_ref_obj

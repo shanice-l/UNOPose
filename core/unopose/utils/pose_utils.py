@@ -4,6 +4,7 @@ https://github.com/ClementPinard/SfmLearner-Pytorch/blob/master/inverse_warp.py
 https://github.com/facebookresearch/QuaterNet/blob/master/common/quaternion.py
 https://github.com/arraiyopensource/kornia/blob/master/kornia/geometry/conversions.py
 """
+
 from math import acos, cos, pi, sin
 
 import numpy as np

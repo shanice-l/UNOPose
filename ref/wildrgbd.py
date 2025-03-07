@@ -17,6 +17,7 @@ output_dir = osp.join(root_dir, "output")
 data_root = osp.join(root_dir, "datasets")
 wildrgbd_root = osp.join(data_root, "wildrgbd/")
 
+
 @dataclass
 class wildrgbd:
     dataset_root = wildrgbd_root
@@ -37,7 +38,13 @@ class wildrgbd:
     zNear = 0.25
     zFar = 6.0
     center = (height / 2, width / 2)
-    camera_matrix = np.array([[599.68212890625, 0, 0,], [0, 599.68212890625, 0,], [240.56716918945312, 317.58502197265625, 1]])
+    camera_matrix = np.array(
+        [
+            [599.68212890625, 0, 0],
+            [0, 599.68212890625, 0],
+            [240.56716918945312, 317.58502197265625, 1],
+        ]
+    )
 
     @lazy_property
     def objects(self):

@@ -341,7 +341,7 @@ class BOPTestsetPoseFreeOneRefv2:
             ref_scene, ref_im = ref_scene_im.split("_")
             ref_scene = int(ref_scene)
             ref_im = int(ref_im)
-            ref_dict[idx+1] = (ref_scene, ref_im)
+            ref_dict[idx + 1] = (ref_scene, ref_im)
 
         for target in test_target_list:
             obj_id = target["obj_id"]
@@ -375,12 +375,15 @@ if __name__ == "__main__":
         rgb_mask_flag=True,
         seg_filter_score=0.25,
         rgb_to_bgr=False,
-        img_H = 480,
-        img_W = 640,
+        img_H=480,
+        img_W=640,
     )
-    detetion_path = PROJ_ROOT / "datasets/segmentation/CustomSamAutomaticMaskGenerator_test_oneref_targets_crossscene_rot50_refvisib_ycbv.json"
+    detetion_path = (
+        PROJ_ROOT
+        / "datasets/segmentation/CustomSamAutomaticMaskGenerator_test_oneref_targets_crossscene_rot50_refvisib_ycbv.json"
+    )
     dataset = BOPTestsetPoseFreeOneRefv2(cfg, eval_dataset_name="ycbv", detetion_path=detetion_path)
-    
+
     for data in dataset:
         pts = data["pts"][0]
         pts_tem1 = data["tem1_pts"][0]

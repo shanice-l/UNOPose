@@ -7,6 +7,7 @@ import os.path as osp
 import numpy as np
 from dataclasses import dataclass
 from lib.utils.utils import lazy_property
+
 cur_dir = osp.abspath(osp.dirname(__file__))
 sys.path.insert(0, osp.join(cur_dir, "../"))
 sys.path.insert(0, osp.join(cur_dir, "../third_party/bop_toolkit/"))

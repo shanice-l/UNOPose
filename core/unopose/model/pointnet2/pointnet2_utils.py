@@ -441,7 +441,7 @@ class LRF_batch(nn.Module):
         # zp
         x = xyz - xyz_group  # pi->p = p - pi
         # xxt = torch.bmm(x, x.transpose(2, 3)) / M
-        xxt = torch.einsum('bcnj,bcjm->bcnm', x, x.transpose(2, 3)) / M
+        xxt = torch.einsum("bcnj,bcjm->bcnm", x, x.transpose(2, 3)) / M
         _, _, v = torch.svd(xxt)
 
         # with torch.no_grad():
@@ -449,7 +449,7 @@ class LRF_batch(nn.Module):
         #     _sign = torch.ones((B, N, 1), device=xyz.device) - 2 * (sum_ < 0)
 
         with torch.no_grad():
-            center_proj = (v[..., -1].unsqueeze(2) @ x)
+            center_proj = v[..., -1].unsqueeze(2) @ x
             sum_ = (center_proj > 1e-3).sum(-1) - (center_proj < -1e-3).sum(-1)
             _sign = torch.ones((B, N, 1), device=xyz_group.device) - 2 * (sum_ < 0)
 
@@ -462,14 +462,14 @@ class LRF_batch(nn.Module):
 
         vi = x - proj.transpose(2, 3)
 
-        x_l2 = torch.sqrt((x ** 2).sum(dim=2, keepdim=True))
+        x_l2 = torch.sqrt((x**2).sum(dim=2, keepdim=True))
 
         alpha = self.r_lrf - x_l2
         alpha = alpha * alpha
         beta = (norm * norm).transpose(2, 3)
         vi_c = (alpha * beta * vi).sum(3)
 
-        xp = vi_c / (torch.sqrt((vi_c ** 2).sum(2, keepdim=True)) + self.eps)
+        xp = vi_c / (torch.sqrt((vi_c**2).sum(2, keepdim=True)) + self.eps)
         # yp
         yp = torch.cross(xp, zp.squeeze(2), dim=2)
 
@@ -552,10 +552,10 @@ class QueryAndLRFGroup(nn.Module):
 
         xyz_trans = xyz.transpose(1, 2).contiguous()
         grouped_xyz = grouping_operation(xyz_trans, idx)  # (B, 3, npoint, nsample)
-        
+
         # calculate LRF in batch
-        lrf_features = self.lrf(xyz, grouped_xyz.transpose(1, 2)) # (B, npoint, 3, nsample)
-        lrf_features = lrf_features.transpose(1, 2).contiguous() # (B, 3, npoint, nsample)
+        lrf_features = self.lrf(xyz, grouped_xyz.transpose(1, 2))  # (B, npoint, 3, nsample)
+        lrf_features = lrf_features.transpose(1, 2).contiguous()  # (B, 3, npoint, nsample)
 
         grouped_xyz -= new_xyz.transpose(1, 2).unsqueeze(-1)
         if self.normalize_xyz:
@@ -568,7 +568,7 @@ class QueryAndLRFGroup(nn.Module):
             else:
                 new_features = lrf_features
             if self.use_feature:
-                new_features = torch.cat([grouped_features, new_features], dim=1) # (B, C + 3 + 3, npoint, nsample)
+                new_features = torch.cat([grouped_features, new_features], dim=1)  # (B, C + 3 + 3, npoint, nsample)
         else:
             assert self.use_xyz, "Cannot have not features and not use xyz as a feature!"
             new_features = lrf_features
