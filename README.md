@@ -1,10 +1,13 @@
 # UNOPose
 
 This repo provides for the implementation of the CVPR'25 paper:
+
 **UNOPose: Unseen Object Pose Estimation with an Unposed RGB-D Reference Image**
+[[arXiv](https://arxiv.org/abs/2411.16106)]
 
 ## Overview
-[TODO:pics]
+![<img src='https://github.com/shanice-l/UNOPose/blob/main/pics/network_v1.pdf' width='800'/>](pics/network_v1.pdf)
+
 
 ## Dependencies
 
