@@ -11,6 +11,7 @@ from core.unopose.utils.model_utils import (
 )
 from core.unopose.utils.loss_utils import compute_overlap_loss, compute_soft_loss
 
+
 class CoarsePointMatchingOneRef(nn.Module):
     def __init__(self, cfg, return_feat=False):
         super(CoarsePointMatchingOneRef, self).__init__()
@@ -25,9 +26,7 @@ class CoarsePointMatchingOneRef(nn.Module):
 
         self.score_heads = []
         for _ in range(self.nblock):
-            self.score_heads.append(
-                nn.Linear(cfg.hidden_dim, 1)
-            )
+            self.score_heads.append(nn.Linear(cfg.hidden_dim, 1))
         self.score_heads = nn.ModuleList(self.score_heads)
 
         self.transformers = []
@@ -44,7 +43,6 @@ class CoarsePointMatchingOneRef(nn.Module):
             )
         self.transformers = nn.ModuleList(self.transformers)
         self.sigmoid = nn.Sigmoid()
-
 
     def forward(self, p1, f1, geo1, p2, f2, geo2, radius, end_points):
         B, n1 = f1.size(0), f1.size(1)
@@ -67,14 +65,14 @@ class CoarsePointMatchingOneRef(nn.Module):
                     compute_feature_similarity(
                         self.out_proj(f1), self.out_proj(f2), self.cfg.sim_type, self.cfg.temp, self.cfg.normalize_feat
                     )
-                ) # bs, n1+1, n2+1
-                s1, s2 = scores[:, 1:(n1+1)], scores[:, (n1+2):] # bs, n1, 1; bs, n2, 1
-                m1 = torch.matmul(F.softmax(atten_list[-1][:, 1:, 1:], dim=2), s2) # bs, n1, 1
-                m2 = torch.matmul(F.softmax(atten_list[-1][:, 1:, 1:].transpose(1, 2), dim=2), s1) # bs, n2, 1
-                score = torch.cat((s1,s2),dim=1).squeeze(-1)
+                )  # bs, n1+1, n2+1
+                s1, s2 = scores[:, 1 : (n1 + 1)], scores[:, (n1 + 2) :]  # bs, n1, 1; bs, n2, 1
+                m1 = torch.matmul(F.softmax(atten_list[-1][:, 1:, 1:], dim=2), s2)  # bs, n1, 1
+                m2 = torch.matmul(F.softmax(atten_list[-1][:, 1:, 1:].transpose(1, 2), dim=2), s1)  # bs, n2, 1
+                score = torch.cat((s1, s2), dim=1).squeeze(-1)
                 score = torch.clamp(self.sigmoid(score), min=0, max=1)
                 score_list.append(score)
-                saliency = torch.cat((m1,m2),dim=1).squeeze(-1)
+                saliency = torch.cat((m1, m2), dim=1).squeeze(-1)
                 saliency = torch.clamp(self.sigmoid(saliency), min=0, max=1)
                 saliency_list.append(saliency)
 
@@ -84,12 +82,20 @@ class CoarsePointMatchingOneRef(nn.Module):
             init_R, init_t = aug_pose_noise(gt_R, gt_t)
 
             end_points = compute_overlap_loss(
-                end_points, atten_list, score_list, saliency_list, p1, p2, gt_R, gt_t, predator_thres=self.cfg.loss_predator_thres, dis_thres=self.cfg.loss_dis_thres, loss_str="coarse_hard"
+                end_points,
+                atten_list,
+                score_list,
+                saliency_list,
+                p1,
+                p2,
+                gt_R,
+                gt_t,
+                predator_thres=self.cfg.loss_predator_thres,
+                dis_thres=self.cfg.loss_dis_thres,
+                loss_str="coarse_hard",
             )
             if self.cfg.get("softloss_weight", 0.0) > 0:
-                end_points = compute_soft_loss(
-                    end_points, atten_list, p1, p2, gt_R, gt_t, loss_str="coarse_soft"
-                )
+                end_points = compute_soft_loss(end_points, atten_list, p1, p2, gt_R, gt_t, loss_str="coarse_soft")
         else:
             if self.cfg.get("pose_type", "").lower() == "mac":
                 assert self.cfg.sim_type == "cosine"

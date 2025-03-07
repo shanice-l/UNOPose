@@ -18,7 +18,6 @@ from detectron2.checkpoint import PeriodicCheckpointer
 from detectron2.utils.logger import log_first_n
 from detectron2.engine import create_ddp_model
 
-# from detectron2.data import MetadataCatalog
 from detectron2.utils import comm
 
 from core.unopose.utils.my_checkpoint import MyCheckpointer
@@ -87,27 +86,11 @@ def do_save_results(cfg, model, iteration=None):
 
 def do_train(cfg, args, model, optimizer, resume=False):
     model.train()
-    # model_cfg = cfg.model_cfg
-
-    # some basic settings =========================
-    # dataset_meta = MetadataCatalog.get(cfg.DATASETS.TRAIN[0])
-    # obj_names = dataset_meta.objs
-
     # load data ===================================
     # train_dset_names = cfg.DATASETS.TRAIN
     data_loader = instantiate(cfg.dataloader.train)
     data_loader.dataset.reset()
     data_loader_iter = iter(data_loader)
-
-    # load 2nd train dataloader if needed
-    # train_2_dset_names = cfg.DATASETS.get("TRAIN2", ())
-    # train_2_ratio = cfg.DATASETS.get("TRAIN2_RATIO", 0.0)
-    # if train_2_ratio > 0.0 and len(train_2_dset_names) > 0:
-    #     data_loader_2 = build_unspre_train_loader(cfg, train_2_dset_names)
-    #     data_loader_2_iter = iter(data_loader_2)
-    # else:
-    #     data_loader_2 = None
-    #     data_loader_2_iter = None
 
     cfg.lr_multiplier.optimizer = optimizer
     scheduler = instantiate(cfg.lr_multiplier)
@@ -162,23 +145,13 @@ def do_train(cfg, args, model, optimizer, resume=False):
                 logger.warning("reset dataloader to resample image indices")
                 data_loader.dataset.reset()
                 data_loader_iter = iter(data_loader)
-            # max_refine_iter = max(1, model_cfg.n_iter_train)
-            # if model_cfg.n_iter_train_warm_iters > 0:
-            #     max_refine_iter = min(
-            #         max_refine_iter,
-            #         max(1, int(max_refine_iter * iteration / max(model_cfg.n_iter_train_warm_iters, 1))),
-            #     )
 
-            # if np.random.rand() < train_2_ratio:
-            #     data = next(data_loader_2_iter)
-            # else:
             data = next(data_loader_iter)
 
             if iter_time is not None:
                 storage.put_scalar("time", time.perf_counter() - iter_time)
             iter_time = time.perf_counter()
 
-            # batch = batch_data(cfg, data)
             batch = data
             for key in batch:
                 log_first_n(logging.INFO, f"key: {key}, len: {len(batch[key])}")
@@ -211,7 +184,6 @@ def do_train(cfg, args, model, optimizer, resume=False):
                     for k, v in non_loss_dict_reduced.items():
                         tbx_writer.add_scalar(k, v, iteration)
 
-            # end of refine loop ------------------------------------------------------------------------------------
             optim_step(loss_all, model, optimizer, grad_scaler, AMP_ON, clip_grad_cfg=cfg.train.clip_grad)
             storage.put_scalar("lr", optimizer.param_groups[0]["lr"], smoothing_hint=False)
             scheduler.step()
@@ -221,7 +193,6 @@ def do_train(cfg, args, model, optimizer, resume=False):
                 and ((iteration + 1) % cfg.train.eval_period == 0)
                 and (iteration != max_iter - 1)
             ):
-                # do_test(cfg, model, iteration=iteration)
                 if isinstance(model, (torch.nn.DataParallel, DistributedDataParallel)):
                     do_save_results(cfg, model.module, iteration=iteration)
                 else:
@@ -243,11 +214,6 @@ def do_train(cfg, args, model, optimizer, resume=False):
                         roi_img_vis = batch["roi_img"][vis_i].cpu().numpy()
                         roi_img_vis = denormalize_image(roi_img_vis, cfg).transpose(1, 2, 0).astype("uint8")
                         tbx_writer.add_image("input_image", roi_img_vis, iteration)
-
-                        # out_mask = out_dict["mask"].detach()
-                        # out_mask = get_out_mask(cfg, out_mask)
-                        # out_mask_vis = out_mask[vis_i, 0].cpu().numpy()
-                        # tbx_writer.add_image("out_mask", out_mask_vis, iteration)
 
                         gt_mask_vis = batch["roi_mask"][vis_i].detach().cpu().numpy()
                         tbx_writer.add_image("gt_mask", gt_mask_vis, iteration)

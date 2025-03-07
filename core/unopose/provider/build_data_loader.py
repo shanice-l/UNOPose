@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 #     dataloader._use_shared_memory = False
 #     return batch
 
+
 def trivial_batch_collator(batch):
     """A batch collator that does nothing.
 
@@ -36,6 +37,7 @@ def trivial_batch_collator(batch):
         else:
             new_batch[key] = [item[key] for item in batch]
     return new_batch
+
 
 def my_build_batch_data_loader(
     dataset,

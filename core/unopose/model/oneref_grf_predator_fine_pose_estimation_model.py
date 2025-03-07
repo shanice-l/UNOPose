@@ -32,10 +32,14 @@ class NetOneRef(nn.Module):
         # bg_point = torch.ones(dense_pm.size(0), 1, 3).float().to(dense_pm.device) * 100
         bg_point = torch.ones(dense_pm.size(0), 1, 3).float().to(dense_pm.device)
 
-        sparse_pm, sparse_pm_lrf, sparse_fm, fps_idx_m = sample_pts_feats_wlrf(dense_pm, dense_pm_lrf, dense_fm, self.coarse_npoint, return_index=True)
+        sparse_pm, sparse_pm_lrf, sparse_fm, fps_idx_m = sample_pts_feats_wlrf(
+            dense_pm, dense_pm_lrf, dense_fm, self.coarse_npoint, return_index=True
+        )
         geo_embedding_m = self.geo_embedding(torch.cat([bg_point, sparse_pm_lrf], dim=1))
 
-        sparse_po, sparse_po_lrf, sparse_fo, fps_idx_o = sample_pts_feats_wlrf(dense_po, dense_po_lrf, dense_fo, self.coarse_npoint, return_index=True)
+        sparse_po, sparse_po_lrf, sparse_fo, fps_idx_o = sample_pts_feats_wlrf(
+            dense_po, dense_po_lrf, dense_fo, self.coarse_npoint, return_index=True
+        )
         geo_embedding_o = self.geo_embedding(torch.cat([bg_point, sparse_po_lrf], dim=1))
 
         # fine_point_matching
@@ -54,10 +58,9 @@ class NetOneRef(nn.Module):
 
         return end_points
 
-
     def get_batch_lrf(self, pts):
         # pts: B*N*3
-        centroids = torch.mean(pts, 1, True) # [B, 1, 3]
+        centroids = torch.mean(pts, 1, True)  # [B, 1, 3]
         if self.use_ref_rad:
             r_lrf = torch.ones(pts.shape[0], device=pts.device)
         else:
@@ -68,6 +71,6 @@ class NetOneRef(nn.Module):
             r_lrf = torch.norm(pts_minus_mean, dim=2).max(1)[0]
 
         batch_lrf = LRF(r_lrf)
-        pts_lrf = batch_lrf(centroids.transpose(1,2), pts.transpose(1,2))
-        pts_lrf = pts_lrf.transpose(1,2).contiguous()
+        pts_lrf = batch_lrf(centroids.transpose(1, 2), pts.transpose(1, 2))
+        pts_lrf = pts_lrf.transpose(1, 2).contiguous()
         return pts_lrf

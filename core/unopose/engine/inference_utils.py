@@ -6,6 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 # example, no use
 def inference_and_save(
     model,

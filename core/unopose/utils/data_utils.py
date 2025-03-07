@@ -8,9 +8,11 @@ import warnings
 import imageio
 import cv2
 import mmcv
+
 # from detectron2.utils.logger import log_first_n
 # import open3d
 import torch
+
 
 def _empty(_n, _c, _h, _w, dtype=torch.float32, device="cuda"):
     _tensor_kwargs = {"dtype": dtype, "device": device}
@@ -386,15 +388,18 @@ def get_zoe_depth_map(inst):
     )
     return depth
 
+
 def get_depthanythingv2_map(inst):
     """
     the returned depth's unit is m
     """
     scene_id, img_id, data_folder = inst["scene_id"], inst["img_id"], inst["data_folder"]
     depth = (
-        load_im(os.path.join(data_folder, f"{scene_id:06d}", "depth_anything_v2", f"{img_id:06d}.png"), "unchanged") / 1000.0
+        load_im(os.path.join(data_folder, f"{scene_id:06d}", "depth_anything_v2", f"{img_id:06d}.png"), "unchanged")
+        / 1000.0
     )
     return depth
+
 
 def get_bop_image(inst, bbox, img_size, mask=None, rgb_to_bgr=False):
     """

@@ -11,7 +11,6 @@ import torch
 
 from lib.torch_utils.solver.lr_scheduler import flat_and_anneal_lr_scheduler
 
-# from lib.torch_utils.solver.ranger import Ranger
 from core.unopose.model.oneref_grf_predator_pose_estimation_model import UNOPose
 
 from core.unopose.provider.pfoneref_training_dataset_v2 import DatasetPoseFreeOneRefv2
@@ -33,7 +32,7 @@ num_epoch = 3
 max_iter = int(iters_per_epoch * num_epoch)
 # mimic that in sam6d, re-sample M times, each time resample 1/M from the whole dataset
 # set to 1 to disable this behavior
-resample_times = 1  # in sam-6d this is 15
+resample_times = 1
 
 misc = OmegaConf.create(
     dict(
@@ -95,7 +94,6 @@ test = dict(
 )
 
 
-# optimizer = L(Ranger)(
 optimizer = L(torch.optim.Adam)(
     params=L(get_default_optimizer_params)(
         # params.model is meant to be set to the model object, before instantiating
@@ -156,7 +154,7 @@ model = L(UNOPose)(
             temp=0.1,
             sim_type="cosine",
             normalize_feat=True,
-	        loss_predator_thres=0.15,
+            loss_predator_thres=0.15,
             loss_dis_thres=0.3,
             nproposal1=6000,
             nproposal2=300,
@@ -172,7 +170,7 @@ model = L(UNOPose)(
             temp=0.1,
             sim_type="cosine",
             normalize_feat=True,
-	        loss_predator_thres=0.15,
+            loss_predator_thres=0.15,
             loss_dis_thres=0.3,
             use_lrf=True,
             use_xyz=True,
@@ -207,32 +205,9 @@ dataloader = OmegaConf.create(
             num_workers=24,
         ),
         test=L(build_test_loader)(
-            # dataset=L(BOPTestsetOneRefv1)(
-            #     cfg=dict(
-            #         data_dir=osp.join(PROJ_ROOT, "datasets/BOP_DATASETS"),
-            #         template_dir=osp.join(PROJ_ROOT, "datasets/SAM-6D-data/BOP-Templates"),
-            #         img_size=224,
-            #         n_sample_observed_point=2048,
-            #         n_sample_model_point=1024,
-            #         n_sample_template_point=5000,
-            #         minimum_n_point=8,
-            #         rgb_mask_flag=True,
-            #         seg_filter_score=0.25,
-            #         total_template_num=42,
-            #         random_template_id=True,
-            #         # template_id=None,
-            #         rgb_to_bgr=False,
-            #     ),
-            #     eval_dataset_name="ycbv",
-            #     detetion_path=osp.join(
-            #         PROJ_ROOT, "datasets/SAM-6D-data/segmentation-sam6d-sam/sam6d_ycbv-test_AP-60-5.json"
-            #     ),
-            # ),
-            ########
             dataset=L(BOPTestsetPoseFreeOneRefv2)(
                 cfg=dict(
                     data_dir=osp.join(PROJ_ROOT, "datasets/BOP_DATASETS"),
-                    # ref_targets_name="test_ref_targets.json",  # inner scene
                     ref_targets_name="test_ref_targets_innerscene_rot50.json",  # inner scene
                     img_size=224,
                     n_sample_observed_point=2048,
@@ -260,4 +235,4 @@ bop_eval = dict(
     split="test",
 )
 
-# baseline 
+# baseline

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 from lib.utils.utils import lazy_property
 from lib.pysixd import inout
+
 # ---------------------------------------------------------------- #
 # ROOT PATH INFO
 # ---------------------------------------------------------------- #

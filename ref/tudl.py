@@ -46,7 +46,7 @@ class tudl:
     objects = list(id2obj.values())
     obj_num = len(id2obj)
     obj2id = {_name: _id for _id, _name in id2obj.items()}
-    
+
     @lazy_property
     def model_paths(self):
         return [osp.join(self.model_dir, "obj_{:06d}.ply").format(_id) for _id in self.id2obj]  # TODO: check this

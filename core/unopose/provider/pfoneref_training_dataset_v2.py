@@ -65,6 +65,7 @@ from core.unopose.utils.data_utils import (
     get_random_rotation,
     get_bbox,
 )
+
 # from core.csrc.fps.fps_utils import farthest_point_sampling
 from core.unopose.utils.model_utils import pairwise_distance
 
@@ -130,7 +131,7 @@ class DatasetPoseFreeOneRefv2:
         self.model_info = [load_json(osp.join(self.data_dir, self.data_paths[0], "gso_models.json"))]
 
         self.model_info.append(load_json(osp.join(self.data_dir, self.data_paths[1], "shapenet_models.json")))
-        
+
         # load valid insts
         self.valid_insts = {}
         self.valid_insts["GSO"] = load_json(self.valid_insts_paths[0])
@@ -206,7 +207,7 @@ class DatasetPoseFreeOneRefv2:
         num_instance = len(valid_idx)
         # NOTE: randomly choose one valid instance!!!
         valid_idx = valid_idx[np.random.randint(0, num_instance)]
-        
+
         # gt_info
         gt_info = io_load_gt(osp.join(self.data_dir, path_head + ".gt_info.json"))[valid_idx]
         # bbox = gt_info['bbox_visib']
@@ -231,7 +232,6 @@ class DatasetPoseFreeOneRefv2:
 
         # NOTE: template
         # randomly choose one reference for this obj during training
-        # TODO(gu): maybe choose the one with smaller rotation difference
         tic = time.perf_counter()
         tem1_rgb, tem1_choose, tem1_pts, pose_camtem1_obj = self._get_template(dataset_type, obj_id)
         log_first_n(logging.WARNING, f"get 1 template: {time.perf_counter() - tic}s", n=1)
@@ -258,7 +258,7 @@ class DatasetPoseFreeOneRefv2:
         bbox = get_bbox(mask > 0)  # y1, y2, x1, x2
         y1, y2, x1, x2 = bbox
         mask = mask[y1:y2, x1:x2]
-        
+
         if np.sum(mask) == 0:
             logger.warning("no valid mask")
             return None
@@ -478,7 +478,14 @@ class DatasetPoseFreeOneRefv2:
         return rgb, choose, xyz, tem_pose
 
     def _check_path(self, path_head):
-        keys = [".camera.json", ".depth.png", ".gt_info.json", ".gt.json", ".mask_visib.json", ".rgb.jpg",] # ".valid_insts.json"]
+        keys = [
+            ".camera.json",
+            ".depth.png",
+            ".gt_info.json",
+            ".gt.json",
+            ".mask_visib.json",
+            ".rgb.jpg",
+        ]  # ".valid_insts.json"]
 
         for k in keys:
             if not osp.exists(path_head + k):
@@ -486,17 +493,19 @@ class DatasetPoseFreeOneRefv2:
                 return False
         return True
 
+
 def get_batch_lrf(pts):
     # pts: B*N*3
-    centroids = torch.mean(pts, 1, True) # [B, 1, 3]
-    max_pts = torch.max(pts, 1, False).values # [B, 3]
-    min_pts = torch.min(pts, 1, False).values # [B, 3]
-    r_lrf = torch.norm(max_pts - min_pts, dim=1) / 2.0 # [B]
+    centroids = torch.mean(pts, 1, True)  # [B, 1, 3]
+    max_pts = torch.max(pts, 1, False).values  # [B, 3]
+    min_pts = torch.min(pts, 1, False).values  # [B, 3]
+    r_lrf = torch.norm(max_pts - min_pts, dim=1) / 2.0  # [B]
 
     batch_lrf = LRF(r_lrf)
-    pts_lrf = batch_lrf(centroids.transpose(1,2), pts.transpose(1,2))
-    pts_lrf = pts_lrf.transpose(1,2).contiguous()
+    pts_lrf = batch_lrf(centroids.transpose(1, 2), pts.transpose(1, 2))
+    pts_lrf = pts_lrf.transpose(1, 2).contiguous()
     return pts_lrf
+
 
 if __name__ == "__main__":
     from easydict import EasyDict as edict
@@ -558,7 +567,7 @@ if __name__ == "__main__":
 
         # plot_3d(v0_pts_lrf.numpy(), v1_pts_lrf.numpy(), "grfed pts", save_path="output/grfed_pts.png")
         # plot_3d(v0_pts_tem1_lrf.numpy(), v1_pts_tem1_lrf.numpy(), "grfed tem pts", save_path="output/grfed_tem_pts.png")
-        
+
         # (p^T - t_T) @ R_c_o @ randR_o_oRand, means:
         # camera space --> object space --> random rotation in object space
         trans = data["translation_label"].reshape(1, 3) / (radius + 1e-6)
@@ -566,11 +575,16 @@ if __name__ == "__main__":
         normed_pts_transformed = (normed_pts - trans) @ data["rotation_label"]
         dis_mat = torch.sqrt(pairwise_distance(normed_pts_transformed, normed_pts_tem1))
         corr = torch.stack(torch.where(dis_mat < dis_thres), dim=-1)
-        idx1, idx2 = torch.unique(corr[:, 0]), torch.unique(corr[:, 1]) 
+        idx1, idx2 = torch.unique(corr[:, 0]), torch.unique(corr[:, 1])
         plot_3d(pts, pts_tem1, "pts vs pts_tem1", save_path="output/raw_pts_tem.png")
-        plot_3d(normed_pts_transformed, normed_pts_tem1, "normed pts_tfm vs pts_tem1", save_path="output/normed_pts_tem.png")
-        plot_3d(normed_pts_transformed[idx1], normed_pts_tem1[idx2], "overlapped normed pts_tfm vs pts_tem1", save_path="output/overlap03_pts_tem.png")
+        plot_3d(
+            normed_pts_transformed, normed_pts_tem1, "normed pts_tfm vs pts_tem1", save_path="output/normed_pts_tem.png"
+        )
+        plot_3d(
+            normed_pts_transformed[idx1],
+            normed_pts_tem1[idx2],
+            "overlapped normed pts_tfm vs pts_tem1",
+            save_path="output/overlap03_pts_tem.png",
+        )
 
         # vis gt overlap
-
-

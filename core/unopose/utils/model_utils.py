@@ -10,6 +10,7 @@ from core.unopose.model.pointnet2.pointnet2_utils import (
     gather_operation,
     furthest_point_sample,
 )
+
 logger = logging.getLogger(__name__)
 
 
@@ -191,6 +192,7 @@ def gather_pts_feats(sample_idx, pts, feats):
         feats = feats.transpose(1, 2).contiguous()
         return pts, feats
 
+
 def gather_pts_feats_wlrf(sample_idx, pts, pts_lrf, feats):
     """
     sample_idx: # TODO
@@ -330,6 +332,7 @@ def aug_pose_noise(gt_r, gt_t, std_rots=[15, 10, 5, 1.25, 1], max_rot=45, sel_st
 
     return rand_rot.detach(), rand_trans.detach()
 
+
 def compute_coarse_Rt(
     atten,
     pts1,
@@ -373,8 +376,8 @@ def compute_coarse_Rt(
 
     # sample pose hypothese
     cumsum_weights = torch.cumsum(pred_score, dim=1)
-    cumsum_weights /= cumsum_weights[:, -1].unsqueeze(1).contiguous() + 1e-8 # norm to 0-1
-    idx = torch.searchsorted(cumsum_weights, torch.rand(B, n_proposal1 * 3, device=device)) # B, n_proposal1 * 3
+    cumsum_weights /= cumsum_weights[:, -1].unsqueeze(1).contiguous() + 1e-8  # norm to 0-1
+    idx = torch.searchsorted(cumsum_weights, torch.rand(B, n_proposal1 * 3, device=device))  # B, n_proposal1 * 3
     idx1, idx2 = idx.div(N2, rounding_mode="floor"), idx % N2
     idx1 = torch.clamp(idx1, max=N1 - 1).unsqueeze(2).repeat(1, 1, 3)
     idx2 = torch.clamp(idx2, max=N2 - 1).unsqueeze(2).repeat(1, 1, 3)
@@ -438,8 +441,8 @@ def compute_coarse_Rt_overlap(
 
     expand_model_pts = model_pts.unsqueeze(1).repeat(1, n_proposal2, 1, 1).reshape(B * n_proposal2, -1, 3)
     expand_dim = torch.ones((B, 1), device=device)
-    score1 = torch.cat((expand_dim, score1), dim=1)[:,:,None].repeat(1, 1, N2+1)
-    score2 = torch.cat((expand_dim, score2), dim=1)[:,None,:].repeat(1, N1+1, 1)
+    score1 = torch.cat((expand_dim, score1), dim=1)[:, :, None].repeat(1, 1, N2 + 1)
+    score2 = torch.cat((expand_dim, score2), dim=1)[:, None, :].repeat(1, N1 + 1, 1)
 
     # compute soft assignment matrix
     pred_score = torch.softmax(atten, dim=2) * torch.softmax(atten, dim=1)
@@ -455,8 +458,8 @@ def compute_coarse_Rt_overlap(
 
     # sample pose hypothese
     cumsum_weights = torch.cumsum(pred_score, dim=1)
-    cumsum_weights /= cumsum_weights[:, -1].unsqueeze(1).contiguous() + 1e-8 # norm to 0-1
-    idx = torch.searchsorted(cumsum_weights, torch.rand(B, n_proposal1 * 3, device=device)) # B, n_proposal1 * 3
+    cumsum_weights /= cumsum_weights[:, -1].unsqueeze(1).contiguous() + 1e-8  # norm to 0-1
+    idx = torch.searchsorted(cumsum_weights, torch.rand(B, n_proposal1 * 3, device=device))  # B, n_proposal1 * 3
     idx1, idx2 = idx.div(N2, rounding_mode="floor"), idx % N2
     idx1 = torch.clamp(idx1, max=N1 - 1).unsqueeze(2).repeat(1, 1, 3)
     idx2 = torch.clamp(idx2, max=N2 - 1).unsqueeze(2).repeat(1, 1, 3)
@@ -534,8 +537,8 @@ def compute_fine_Rt_overlap(atten, score, pts1, pts2, model_pts=None, dis_thres=
     score1 = score[:, :N1]
     score2 = score[:, N1:]
     expand_dim = torch.ones((B, 1), device=score1.device)
-    score1 = torch.cat((expand_dim, score1), dim=1)[:,:,None].repeat(1, 1, N2+1)
-    score2 = torch.cat((expand_dim, score2), dim=1)[:,None,:].repeat(1, N1+1, 1)
+    score1 = torch.cat((expand_dim, score1), dim=1)[:, :, None].repeat(1, 1, N2 + 1)
+    score2 = torch.cat((expand_dim, score2), dim=1)[:, None, :].repeat(1, N1 + 1, 1)
     assginment_mat = torch.softmax(atten, dim=2) * torch.softmax(atten, dim=1)
     assginment_mat = assginment_mat * score1 * score2
 
@@ -597,6 +600,7 @@ def transform(pts, trans):
         trans_pts = torch.einsum("nm,mk->nk", trans[:3, :3], pts.T) + trans[:3, 3:4]
         return trans_pts.T
 
+
 def rigid_transform_3d(A, B, weights=None, weight_threshold=0):
     """
     Input:
@@ -641,6 +645,7 @@ def rigid_transform_3d(A, B, weights=None, weight_threshold=0):
     # RMSE = torch.sum( (warp_A - B) ** 2, dim=-1).mean()
     return integrate_trans(R, t)
 
+
 def post_refinement(initial_trans, src_kpts, tgt_kpts, iters, inlier_threshold=0.1, weights=None):
     pre_inlier_count = 0
     for i in range(iters):
@@ -657,6 +662,7 @@ def post_refinement(initial_trans, src_kpts, tgt_kpts, iters, inlier_threshold=0
             weights=1 / (1 + (L2_dis / inlier_threshold) ** 2)[:, pred_inlier],
         )
     return initial_trans
+
 
 def weighted_procrustes(
     src_points,
@@ -756,8 +762,13 @@ class WeightedProcrustes(nn.Module):
             ref_centroid=ref_centroid,
         )
 
+
 class LRF(nn.Module):
-    def __init__(self, r_lrf, eps=1e-10, ):
+    def __init__(
+        self,
+        r_lrf,
+        eps=1e-10,
+    ):
         super(LRF, self).__init__()
 
         self.eps = eps
@@ -778,12 +789,12 @@ class LRF(nn.Module):
         #     sum_ = (v[..., -1].unsqueeze(1) @ x).sum(2)
         #     _sign = torch.ones((len(xyz_group), 1), device=xyz_group.device) - 2 * (sum_ < 0)
         with torch.no_grad():
-            center_proj = (v[..., -1].unsqueeze(1) @ x)
+            center_proj = v[..., -1].unsqueeze(1) @ x
             sum_ = (center_proj > 1e-3).sum(-1) - (center_proj < -1e-3).sum(-1)
             _sign = torch.ones((len(xyz_group), 1), device=xyz_group.device) - 2 * (sum_ < 0)
 
         zp = (_sign * v[..., -1]).unsqueeze(1)  # B x 1 x 3
-        # zp = v[..., -1].unsqueeze(1) 
+        # zp = v[..., -1].unsqueeze(1)
 
         # xp
         x *= -1  # p->pi = pi - p
@@ -792,21 +803,21 @@ class LRF(nn.Module):
 
         vi = x - proj.transpose(1, 2)
 
-        x_l2 = torch.sqrt((x ** 2).sum(dim=1, keepdim=True))
+        x_l2 = torch.sqrt((x**2).sum(dim=1, keepdim=True))
 
-        alpha = self.r_lrf[:,None,None] - x_l2
+        alpha = self.r_lrf[:, None, None] - x_l2
         alpha = alpha * alpha
         beta = (norm * norm).transpose(1, 2)
         vi_c = (alpha * beta * vi).sum(2)
 
-        xp = vi_c / (torch.sqrt((vi_c ** 2).sum(1, keepdim=True)) + self.eps)
+        xp = vi_c / (torch.sqrt((vi_c**2).sum(1, keepdim=True)) + self.eps)
 
         # yp
         yp = torch.cross(xp, zp.squeeze(1), dim=1)
 
         lrf = torch.cat((xp.unsqueeze(2), yp.unsqueeze(2), zp.transpose(1, 2)), dim=2)
-        
-        _out_xp = (xyz_group - xyz) / self.r_lrf[:,None,None]
+
+        _out_xp = (xyz_group - xyz) / self.r_lrf[:, None, None]
         out_xp = lrf.transpose(1, 2) @ _out_xp
 
         return out_xp

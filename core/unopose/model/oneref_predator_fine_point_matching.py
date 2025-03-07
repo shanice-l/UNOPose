@@ -24,16 +24,18 @@ class FinePointMatchingOneRef(nn.Module):
 
         self.bg_token = nn.Parameter(torch.randn(1, 1, cfg.hidden_dim) * 0.02)
         self.PE = PositionalEncoding(
-            cfg.hidden_dim, 
-            r1=cfg.pe_radius1, r2=cfg.pe_radius2, 
-            nsample1=cfg.get("nsample1", 32), nsample2=cfg.get("nsample2", 64), 
-            use_lrf=cfg.use_lrf, use_xyz=cfg.use_xyz, use_feature=cfg.get("use_feature", False), 
+            cfg.hidden_dim,
+            r1=cfg.pe_radius1,
+            r2=cfg.pe_radius2,
+            nsample1=cfg.get("nsample1", 32),
+            nsample2=cfg.get("nsample2", 64),
+            use_lrf=cfg.use_lrf,
+            use_xyz=cfg.use_xyz,
+            use_feature=cfg.get("use_feature", False),
         )
         self.score_heads = []
         for _ in range(self.nblock):
-            self.score_heads.append(
-                nn.Linear(cfg.hidden_dim, 1)
-            )
+            self.score_heads.append(nn.Linear(cfg.hidden_dim, 1))
         self.score_heads = nn.ModuleList(self.score_heads)
 
         self.transformers = []
@@ -85,14 +87,14 @@ class FinePointMatchingOneRef(nn.Module):
                     compute_feature_similarity(
                         self.out_proj(f1), self.out_proj(f2), self.cfg.sim_type, self.cfg.temp, self.cfg.normalize_feat
                     )
-                ) # bs, n1+1, n2+1
-                s1, s2 = scores[:, 1:(n1+1)], scores[:, (n1+2):] # bs, n1, 1; bs, n2, 1
-                m1 = torch.matmul(F.softmax(atten_list[-1][:, 1:, 1:], dim=2), s2) # bs, n1, 1
-                m2 = torch.matmul(F.softmax(atten_list[-1][:, 1:, 1:].transpose(1, 2), dim=2), s1) # bs, n2, 1
-                score = torch.cat((s1,s2),dim=1).squeeze(-1)
+                )  # bs, n1+1, n2+1
+                s1, s2 = scores[:, 1 : (n1 + 1)], scores[:, (n1 + 2) :]  # bs, n1, 1; bs, n2, 1
+                m1 = torch.matmul(F.softmax(atten_list[-1][:, 1:, 1:], dim=2), s2)  # bs, n1, 1
+                m2 = torch.matmul(F.softmax(atten_list[-1][:, 1:, 1:].transpose(1, 2), dim=2), s1)  # bs, n2, 1
+                score = torch.cat((s1, s2), dim=1).squeeze(-1)
                 score = torch.clamp(self.sigmoid(score), min=0, max=1)
                 score_list.append(score)
-                saliency = torch.cat((m1,m2),dim=1).squeeze(-1)
+                saliency = torch.cat((m1, m2), dim=1).squeeze(-1)
                 saliency = torch.clamp(self.sigmoid(saliency), min=0, max=1)
                 saliency_list.append(saliency)
 
@@ -101,7 +103,17 @@ class FinePointMatchingOneRef(nn.Module):
             gt_t = end_points["translation_label"] / (radius.reshape(-1, 1) + 1e-6)
 
             end_points = compute_overlap_loss(
-                end_points, atten_list, score_list, saliency_list, p1, p2, gt_R, gt_t, predator_thres=self.cfg.loss_predator_thres, dis_thres=self.cfg.loss_dis_thres, loss_str="fine"
+                end_points,
+                atten_list,
+                score_list,
+                saliency_list,
+                p1,
+                p2,
+                gt_R,
+                gt_t,
+                predator_thres=self.cfg.loss_predator_thres,
+                dis_thres=self.cfg.loss_dis_thres,
+                loss_str="fine",
             )
         else:
             # TODO: change find RT
@@ -124,7 +136,9 @@ class FinePointMatchingOneRef(nn.Module):
 
 
 class PositionalEncoding(nn.Module):
-    def __init__(self, out_dim, r1=0.1, r2=0.2, nsample1=32, nsample2=64, use_lrf=True, use_xyz=False, use_feature=False, bn=True):
+    def __init__(
+        self, out_dim, r1=0.1, r2=0.2, nsample1=32, nsample2=64, use_lrf=True, use_xyz=False, use_feature=False, bn=True
+    ):
         super(PositionalEncoding, self).__init__()
         if use_lrf:
             self.group1 = QueryAndLRFGroup(r1, nsample1, use_xyz=use_xyz, use_feature=use_feature)
