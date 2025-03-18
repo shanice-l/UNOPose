@@ -61,7 +61,7 @@ datasets/
 ```
 
 ## Reproduce the results
-Download checkpoints 'timm_vit_base_patch14_reg4_dinov2_lvd142m.pth' from #TODO, and put it into <checkpoints/>
+Download checkpoints 'timm_vit_base_patch14_reg4_dinov2_lvd142m.pth' from #TODO, and put it into *checkpoints/*
 Download our trained weight from from #TODO, and put it into <ckpt_path>.
 
 ## Testing
