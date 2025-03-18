@@ -60,12 +60,12 @@ datasets/
     └──megapose_shapenetcore_fixed_valid_inst_ids.json # provided by us
 ```
 
-## Reproduce the results
+## Download Checkpoints
 Download checkpoints 'timm_vit_base_patch14_reg4_dinov2_lvd142m.pth' from #TODO, and put it into *checkpoints/*.
 
 Download our trained weight from from #TODO, and put it into <ckpt_path>.
 
-## Testing
+## Reproduce the results
 ```
 ./core/unopose/save_unopose.sh configs/main_cfg.py <gpu_ids> <ckpt_path> (other args)
 ```
