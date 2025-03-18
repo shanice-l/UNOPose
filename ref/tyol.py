@@ -5,7 +5,7 @@ import os.path as osp
 
 import numpy as np
 from dataclasses import dataclass
-from core.fine_point_matching.utils.data_utils import load_json
+from core.unopose.utils.data_utils import load_json
 from lib.utils.utils import lazy_property
 
 from plyfile import PlyData

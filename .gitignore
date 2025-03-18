@@ -13,9 +13,12 @@ _ext
 *.pyc
 *.so
 detectron2.egg-info/
+pointnet2.egg-info/
+bop_toolkit_lib.egg-info/
 build/
 dist/
 output/
+datasets/
 .cache/
 
 # pytorch/python/numpy formats

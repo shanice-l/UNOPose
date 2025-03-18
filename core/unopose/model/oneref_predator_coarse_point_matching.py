@@ -7,7 +7,6 @@ from core.unopose.utils.model_utils import (
     compute_feature_similarity,
     aug_pose_noise,
     compute_coarse_Rt_overlap,
-    compute_Rt_mac,
 )
 from core.unopose.utils.loss_utils import compute_overlap_loss, compute_soft_loss
 
@@ -97,25 +96,16 @@ class CoarsePointMatchingOneRef(nn.Module):
             if self.cfg.get("softloss_weight", 0.0) > 0:
                 end_points = compute_soft_loss(end_points, atten_list, p1, p2, gt_R, gt_t, loss_str="coarse_soft")
         else:
-            if self.cfg.get("pose_type", "").lower() == "mac":
-                assert self.cfg.sim_type == "cosine"
-                init_R, init_t, init_score = compute_Rt_mac(
-                    atten_list[-1],
-                    p1,
-                    p2,
-                    self.cfg.temp,
-                )
-            else:
-                init_R, init_t, init_score = compute_coarse_Rt_overlap(
-                    atten_list[-1],
-                    score_list[-1],
-                    p1,
-                    p2,
-                    # end_points["model"] / (radius.reshape(-1, 1, 1) + 1e-6),
-                    None,
-                    self.cfg.nproposal1,
-                    self.cfg.nproposal2,
-                )
+            init_R, init_t, init_score = compute_coarse_Rt_overlap(
+                atten_list[-1],
+                score_list[-1],
+                p1,
+                p2,
+                # end_points["model"] / (radius.reshape(-1, 1, 1) + 1e-6),
+                None,
+                self.cfg.nproposal1,
+                self.cfg.nproposal2,
+            )
             end_points["init_pose_score"] = init_score
 
         end_points["init_R"] = init_R

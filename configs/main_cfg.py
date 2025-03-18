@@ -39,7 +39,7 @@ misc = OmegaConf.create(
         output_dir=osp.abspath(__file__).replace("configs/", "output/", 1)[0:-3],
         load_from="",  # model weights
         # load_from_type="official",
-        exp_name="PfonerefInner50",  # set to "" to auto set
+        exp_name="Pfoneref50",  # set to "" to auto set
         debug=False,
         train_batch_size=train_batch_size,
         world_size=world_size,
@@ -220,7 +220,7 @@ dataloader = OmegaConf.create(
                 ),
                 eval_dataset_name="ycbv",
                 detetion_path=osp.join(
-                    PROJ_ROOT, "ddatasets/segmentation/CustomSamAutomaticMaskGenerator_test_oneref_targets_crossscene_rot50_refvisib_ycbv.json"
+                    PROJ_ROOT, "datasets/segmentation/CustomSamAutomaticMaskGenerator_test_oneref_targets_crossscene_rot50_refvisib_ycbv.json"
                 ),
             ),
             num_workers=16,

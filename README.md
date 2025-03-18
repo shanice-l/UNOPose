@@ -19,12 +19,21 @@ The network architecture of UNOPose.
 ```
 conda create --name unopose python=3.10.12
 conda activate unopose
-conda install pytorch==2.2.0 torchvision==0.17.0 pytorch-cuda=11.8 -c pytorch -c nvidia  # use the correct version of cuda for your system
+pip install torch==2.2.0 torchvision==0.17.0 --index-url https://download.pytorch.org/whl/cu118  # use the correct version of cuda for your system
+pip install mmcv==2.2.0 -f https://download.openmmlab.com/mmcv/dist/cu118/torch2.2/index.html # change cuda version if necessary
+
+# Other required packages
 pip install -r requirements.txt
 
-# install bop toolkit for evaluation
+# install bop toolkit for evaluation following third_party/bop_toolkit/README.md
 cd third_party/bop_toolkit
-pip install -r requirements.txt -e .
+python setup.py install
+cd -
+
+# build pointnet2 extention
+cd core/unopose/model/pointnet2/
+pip install -e .
+cd -
 ```
 
 ## Datasets
@@ -52,11 +61,12 @@ datasets/
 ```
 
 ## Reproduce the results
-Download checkpoints from #TODO, and put it into <ckpt_path>.
+Download checkpoints 'timm_vit_base_patch14_reg4_dinov2_lvd142m.pth' from #TODO, and put it into <checkpoints/>
+Download our trained weight from from #TODO, and put it into <ckpt_path>.
 
 ## Testing
 ```
-./core/unopose/test_unopose.sh configs/main_cfg.py <gpu_ids> <ckpt_path> (other args)
+./core/unopose/save_unopose.sh configs/main_cfg.py <gpu_ids> <ckpt_path> (other args)
 ```
 
 ## Training
