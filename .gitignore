@@ -15,6 +15,7 @@ _ext
 detectron2.egg-info/
 build/
 dist/
+output/
 .cache/
 
 # pytorch/python/numpy formats

@@ -208,7 +208,7 @@ dataloader = OmegaConf.create(
             dataset=L(BOPTestsetPoseFreeOneRefv2)(
                 cfg=dict(
                     data_dir=osp.join(PROJ_ROOT, "datasets/BOP_DATASETS"),
-                    ref_targets_name="test_ref_targets_innerscene_rot50.json",  # inner scene
+                    ref_targets_name="test_ref_targets_crossscene_rot50.json",  # inner scene
                     img_size=224,
                     n_sample_observed_point=2048,
                     n_sample_model_point=1024,
@@ -220,11 +220,8 @@ dataloader = OmegaConf.create(
                 ),
                 eval_dataset_name="ycbv",
                 detetion_path=osp.join(
-                    PROJ_ROOT, "datasets/SAM-6D-data/segmentation-sam6d-sam/sam6d_ycbv-test_AP-60-5.json"
+                    PROJ_ROOT, "ddatasets/segmentation/CustomSamAutomaticMaskGenerator_test_oneref_targets_crossscene_rot50_refvisib_ycbv.json"
                 ),
-                # detetion_path=osp.join(
-                #     PROJ_ROOT, "datasets/SAM-6D-data/segmentation-sam-lxy/FastSAM_template_oneref_v2_ycbv.json"
-                # ),
             ),
             num_workers=16,
         ),
@@ -235,4 +232,4 @@ bop_eval = dict(
     split="test",
 )
 
-# baseline
+# main exp
