@@ -220,7 +220,8 @@ dataloader = OmegaConf.create(
                 ),
                 eval_dataset_name="ycbv",
                 detetion_path=osp.join(
-                    PROJ_ROOT, "datasets/segmentation/CustomSamAutomaticMaskGenerator_test_oneref_targets_crossscene_rot50_refvisib_ycbv.json"
+                    PROJ_ROOT,
+                    "datasets/segmentation/CustomSamAutomaticMaskGenerator_test_oneref_targets_crossscene_rot50_refvisib_ycbv.json",
                 ),
             ),
             num_workers=16,

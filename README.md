@@ -61,7 +61,11 @@ datasets/
 ```
 
 ## Download Checkpoints
-Download checkpoints 'timm_vit_base_patch14_reg4_dinov2_lvd142m.pth' from #TODO, and put it into *checkpoints/*.
+Download DINOv2 checkpoint 'timm_vit_base_patch14_reg4_dinov2_lvd142m.pth' and put it into `checkpoints/`:
+```
+# export HF_ENDPOINT="https://hf-mirror.com"  # if huggingface.co is not accessible
+python core/unopose/scripts/download_and_save_dinov2_ckpt.py
+```
 
 Download our trained weight from from #TODO, and put it into <ckpt_path>.
 

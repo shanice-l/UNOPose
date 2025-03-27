@@ -315,13 +315,13 @@ class RendererVispy(renderer.Renderer, app.Canvas, metaclass=SingletonArgs):
         self.fbo.activate()
 
     def my_add_object(self, model: dict, obj_id: int):
-        '''
+        """
         version usable with a generic object model
         argument obj_model is expected to have the following fields:
         - points : (N,3) xyz points
         - normals: (N,3) normals
-        - faces: (M,3) polygon faces needed for rendering 
-        '''
+        - faces: (M,3) polygon faces needed for rendering
+        """
 
         self.models[obj_id] = model
 
@@ -343,13 +343,13 @@ class RendererVispy(renderer.Renderer, app.Canvas, metaclass=SingletonArgs):
 
         # Set texture/color of vertices.
         self.model_textures[obj_id] = None
-        
+
         colors = np.ones((model["pts"].shape[0], 3), np.float32) * 0.5
-        
+
         # Set the vertex data.
         vertices_type = [("a_position", np.float32, 3), ("a_color", np.float32, colors.shape[1])]
         vertices = np.array(list(zip(model["pts"], colors)), vertices_type)
-        
+
         # Create vertex and index buffer for the loaded object model.
         self.vertex_buffers[obj_id] = gloo.VertexBuffer(vertices)
         self.index_buffers[obj_id] = gloo.IndexBuffer(model["faces"].flatten().astype(np.uint32))
