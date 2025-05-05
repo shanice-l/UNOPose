@@ -32,6 +32,7 @@ sys.path.insert(0, osp.join(cur_dir, ".."))
 from bop_toolkit_lib import config
 from bop_toolkit_lib import inout
 from bop_toolkit_lib import misc
+
 sys.path.insert(0, osp.join(cur_dir, "../../.."))
 from lib.utils import logger
 
