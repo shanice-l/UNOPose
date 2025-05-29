@@ -37,7 +37,7 @@ cd -
 ```
 
 ## Datasets
-Download dataset files from https://huggingface.co/datasets/shanice-l/UNOPose_data/tree/main.
+Download dataset files from [huggingface](https://huggingface.co/datasets/shanice-l/UNOPose_data/tree/main) or [ModelScope](https://www.modelscope.cn/datasets/wangg12/UNOPose_data/files).
 Prepare datasets folder like this:
 
 ```
@@ -68,7 +68,7 @@ Download DINOv2 checkpoint 'timm_vit_base_patch14_reg4_dinov2_lvd142m.pth' and p
 python core/unopose/scripts/download_and_save_dinov2_ckpt.py
 ```
 
-Download our trained weight from from https://huggingface.co/shanice-l/UNOPose_model/tree/main, and put it into <ckpt_path> (e.g. output/).
+Download our trained weight from from [huggingface](https://huggingface.co/shanice-l/UNOPose_model/tree/main) or [ModelScope](https://www.modelscope.cn/models/wangg12/UNOPose_model/files), and put it into <ckpt_path> (e.g. output/).
 
 ## Reproduce the results
 ```
